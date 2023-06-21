@@ -265,7 +265,7 @@ namespace SinoStationWeb.Models
                             {
                                 allOtherNames += otherName + "、";
                             }
-                            excelCompare.otherNames = allOtherNames;
+                            excelCompare.otherNames = allOtherNames.Substring(0, allOtherNames.Length - 1);
                         }
                     }
                     catch (Exception)
