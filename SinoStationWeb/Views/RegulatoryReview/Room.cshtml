@@ -4,40 +4,30 @@
     ViewBag.Title = "Room";
 }
 
-<div ng-controller="UploadCtrl" class="container" style="margin-top: 60px">
+<div ng-controller="RoomCtrl" class="container" style="margin-top: 60px">
 
     <div ng-repeat="x in [].constructor(3) track by $index">
         <br />
     </div>
-    <form id="UploadForm" action="@Url.Action("UpdateFileInfo")" method="post" enctype="multipart/form-data">
-        <label for="file">檔案名稱：</label>
-        <input type="file" name="file" id="files" />
-        <br />
-        <input type="submit" id="uploadBtn" disabled />
-        <br />
-    </form>
-    <div ng-repeat="x in [].constructor(3) track by $index">
-        <br />
-    </div>
-
     <div class="row">
         <div class="col-sm-12" style="padding-bottom:20px">
-            <div class="col-sm-2">
-                <span>請選擇檔案：</span>
-            </div>
             <div class="col-sm-3">
                 <input class="form-control" type="file" name="importFile" id="importFile" />
             </div>
             <div class="col-sm-3">
                 <input class="btn btn-primary" id="btnUpload" type="button" value="上傳員工名單" />
             </div>
+            <div class="col-sm-3" style="align-items:center" ng-repeat="item in data">
+                <p> {{item}} </p>
+            </div>
         </div>
-    </div>
-    <div ng-repeat="x in [].constructor(3) track by $index">
-        <br />
     </div>
 
     <p id="result"></p> <!-- 顯示回傳資料 -->
+
+    <div ng-repeat="x in [].constructor(3) track by $index">
+        <br />
+    </div>
 
 </div>
 
