@@ -9,21 +9,13 @@
     <div ng-repeat="x in [].constructor(3) track by $index">
         <br />
     </div>
-    <div class="row">
-        <div class="col-sm-12" style="padding-bottom:20px">
-            <div class="col-sm-3">
-                <input class="form-control" type="file" name="importFile" id="importFile" />
-            </div>
-            <div class="col-sm-3">
-                <input class="btn btn-primary" id="btnUpload" type="button" value="上傳員工名單" />
-            </div>
-            <div class="col-sm-3" style="align-items:center" ng-repeat="item in data">
-                <p> {{item}} </p>
-            </div>
-        </div>
-    </div>
 
-    <p id="result"></p> <!-- 顯示回傳資料 -->
+    <form name="yearForm">
+        <label for="repeatSelect">請選擇規範條件：</label>
+        <select name="repeatSelect" id="repeatSelect" ng-model="data.model" class="custom-select custom-select-lg mb-3" ng-change="GetResponseByYear(data.model)">
+            <option ng-repeat="option in data.availableOptions" value="{{option.id}}">{{option.name}}</option>
+        </select>
+    </form>
 
     <div ng-repeat="x in [].constructor(3) track by $index">
         <br />

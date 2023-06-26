@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace SinoStationWeb.Models
+﻿namespace SinoStationWeb.Models
 {
     public class Room
     {
@@ -15,7 +10,7 @@ namespace SinoStationWeb.Models
         public string engName { get; set; }  // 空間名稱(英文)
         public string otherNames { get; set; } // 其他名稱
         public string system { get; set; } // 設備/系統
-        public int count { get; set; } // 數量
+        public double count { get; set; } // 數量
         public double maxArea { get; set; } // 最大面積(m2)
         public double minArea { get; set; } // 最小面積(m2)
         public double demandArea { get; set; } // 需求面積
@@ -30,13 +25,14 @@ namespace SinoStationWeb.Models
     }
     public class TitalNames
     {
+        public int id = 0; // Id
         public int code = 0; // 代碼
         public int classification = 0; // 區域
         public int level = 0; // 樓層
         public int name = 0; // 空間名稱(中文)
         public int engName = 0; // 空間名稱(英文)
         public int otherName = 0; // 其他名稱
-        public int category = 0; // 設備/系統
+        public int system = 0; // 設備/系統
         public int count = 0; // 數量
         public int demandArea = 0; // 需求面積
         public int maxArea = 0; // 最大面積(m2)

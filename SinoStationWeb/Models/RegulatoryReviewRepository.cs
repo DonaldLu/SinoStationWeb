@@ -1,16 +1,11 @@
-﻿//using ClosedXML.Excel;
-using Dapper;
-//using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.Office.Interop.Excel;
+﻿using Dapper;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SQLite;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Web;
 
 namespace SinoStationWeb.Models
@@ -31,6 +26,7 @@ namespace SinoStationWeb.Models
             // 先檢視是否有設定好要移除的特殊符號
             List<string> charsToRemove = CreateCharsToRemoveTXT();
             List<Room> roomList = new List<Room>();
+
             try
             {
                 // 儲存檔案
@@ -45,44 +41,38 @@ namespace SinoStationWeb.Models
                     }
                 }
 
-                if (Path.GetExtension(file.FileName) != ".xlsx") throw new ApplicationException("請使用Excel 2007(.xlsx)格式");
-
-                Application excelApp = new Application();
-                Workbook workbook = excelApp.Workbooks.Open(filePath);
-                Worksheet workSheet = workbook.Sheets[1];
-                Range Range = workSheet.UsedRange;
-
-                int rowCount = Range.Rows.Count;
-                int colCount = Range.Columns.Count;
-
-                // 記錄標頭的欄位數
-                TitalNames titleNames = SaveTitleNames(colCount, workSheet);
-
-                // 讀取Excel檔中, 所有物件的名稱、類別、數量
-                for (int i = 2; i <= rowCount; i++)
+                //開檔
+                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
-                    // 空間名稱(中文)
-                    if (workSheet.Cells[i, titleNames.name].Value != null)
+                    // 關閉新許可模式通知
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    //載入Excel檔案
+                    using (ExcelPackage ep = new ExcelPackage(fs))
                     {
-                        Room room = new Room();
-                        room = SaveExcelValue(room, titleNames, workSheet, charsToRemove, i); // 儲存Excel資料
-                        roomList.Add(room);
+                        ExcelWorksheet workSheet = ep.Workbook.Worksheets[0];//取得Sheet1
+                        int rowCount = workSheet.Dimension.End.Row;//結束列編號，從1算起
+                        int colCount = workSheet.Dimension.End.Column;//結束欄編號，從1算起
+
+                        // 記錄標頭的欄位數
+                        TitalNames titleNames = SaveTitleNames(colCount, workSheet);
+
+                        // 讀取Excel檔中, 所有物件的名稱、類別、數量
+                        int id = 1;
+                        for (int i = 2; i <= rowCount; i++)
+                        {
+                            // 空間名稱(中文)
+                            if (workSheet.Cells[i, titleNames.name].Value != null)
+                            {
+                                Room room = new Room();
+                                room = SaveExcelValue(id, room, titleNames, workSheet, charsToRemove, i); // 儲存Excel資料
+                                roomList.Add(room);
+                                id++;
+                            }
+                        }
                     }
                 }
 
-                // 清理記憶體
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                // 釋放COM對象的經驗法則, 單獨引用與釋放COM對象, 不要使用多"."釋放
-                Marshal.ReleaseComObject(Range);
-                Marshal.ReleaseComObject(workSheet);
-                // 關閉與釋放
-                workbook.Close();
-                Marshal.ReleaseComObject(workbook);
-                excelApp.Quit();
-                Marshal.ReleaseComObject(excelApp);
-
-                EditToSQL(roomList);
+                InsertToSQL(roomList); // 新增Excel資料至SQL
             }
             catch (Exception)
             {
@@ -128,12 +118,12 @@ namespace SinoStationWeb.Models
             return charsToRemove;
         }
         // 讀取標頭順序
-        private TitalNames SaveTitleNames(int colCount, Worksheet workSheet)
+        private TitalNames SaveTitleNames(int colCount, ExcelWorksheet workSheet)
         {
             TitalNames titleNames = new TitalNames();
             for (int i = 1; i <= colCount; i++)
             {
-                string titleName = workSheet.Cells[1, i].Value;
+                string titleName = (string)workSheet.Cells[1, i].Value;
                 string title = titleName.Replace("\n", "");
                 if (title.Equals("代碼"))
                 {
@@ -161,7 +151,7 @@ namespace SinoStationWeb.Models
                 }
                 else if (title.Equals("類別") || title.Equals("設備/系統"))
                 {
-                    titleNames.category = i;
+                    titleNames.system = i;
                 }
                 else if (title.Equals("數量"))
                 {
@@ -217,19 +207,20 @@ namespace SinoStationWeb.Models
             return titleNames;
         }
         // 儲存Excel資料
-        private Room SaveExcelValue(Room excelCompare, TitalNames titleNames, Worksheet workSheet, List<string> charsToRemove, int i)
+        private Room SaveExcelValue(int id, Room excelCompare, TitalNames titleNames, ExcelWorksheet workSheet, List<string> charsToRemove, int i)
         {
             try
             {
-                excelCompare.code = workSheet.Cells[i, titleNames.code].Value; // 代碼
+                excelCompare.id = id;
+                excelCompare.code = (string)workSheet.Cells[i, titleNames.code].Value; // 代碼
                 if (excelCompare.code == null)
                 {
                     excelCompare.code = "";
                 }
-                excelCompare.classification = workSheet.Cells[i, titleNames.classification].Value; // 區域
-                excelCompare.level = workSheet.Cells[i, titleNames.level].Value; // 樓層
+                excelCompare.classification = (string)workSheet.Cells[i, titleNames.classification].Value; // 區域
+                excelCompare.level = (string)workSheet.Cells[i, titleNames.level].Value; // 樓層
                 // 名稱(設定)
-                string editName = workSheet.Cells[i, titleNames.name].Value;
+                string editName = (string)workSheet.Cells[i, titleNames.name].Value;
                 foreach (string c in charsToRemove)
                 {
                     try
@@ -244,7 +235,7 @@ namespace SinoStationWeb.Models
                 excelCompare.name = editName;
                 try
                 {
-                    excelCompare.engName = workSheet.Cells[i, titleNames.engName].Value; // 空間名稱(英文)
+                    excelCompare.engName = (string)workSheet.Cells[i, titleNames.engName].Value; // 空間名稱(英文)
                 }
                 catch (Exception)
                 {
@@ -255,7 +246,7 @@ namespace SinoStationWeb.Models
                     // 檢查此空間名稱是否有"其他名稱", 有的話則過濾分隔符號後儲存
                     try
                     {
-                        string otherFullName = workSheet.Cells[i, titleNames.otherName].Value; // 其他名稱
+                        string otherFullName = (string)workSheet.Cells[i, titleNames.otherName].Value; // 其他名稱
                         if (otherFullName != "")
                         {
                             otherFullName = otherFullName.Replace(",", "、").Replace("/", "、");
@@ -279,7 +270,23 @@ namespace SinoStationWeb.Models
                 }
                 try
                 {
-                    excelCompare.permit = workSheet.Cells[i, titleNames.permit].Value; // 容許差異
+                    excelCompare.system = (string)workSheet.Cells[i, titleNames.system].Value; // 設備/系統
+                }
+                catch (Exception)
+                {
+
+                }
+                try
+                {
+                    excelCompare.count = (double)workSheet.Cells[i, titleNames.count].Value; // 數量
+                }
+                catch (Exception)
+                {
+                    excelCompare.count = 0;
+                }
+                try
+                {
+                    excelCompare.permit = (double)workSheet.Cells[i, titleNames.permit].Value; // 容許差異
                 }
                 catch (Exception)
                 {
@@ -287,7 +294,7 @@ namespace SinoStationWeb.Models
                 }
                 try
                 {
-                    excelCompare.unboundedHeight = workSheet.Cells[i, titleNames.unboundedHeight].Value; // 規範淨高
+                    excelCompare.unboundedHeight = (double)workSheet.Cells[i, titleNames.unboundedHeight].Value; // 規範淨高
                 }
                 catch (Exception)
                 {
@@ -295,13 +302,13 @@ namespace SinoStationWeb.Models
                 }
                 try
                 {
-                    excelCompare.demandUnboundedHeight = workSheet.Cells[i, titleNames.demandUnboundedHeight].Value; // 需求淨高
+                    excelCompare.demandUnboundedHeight = (double)workSheet.Cells[i, titleNames.demandUnboundedHeight].Value; // 需求淨高
                 }
                 catch (Exception)
                 {
                     excelCompare.demandUnboundedHeight = 0.0;
                 }
-                string doorWidthHeight = workSheet.Cells[i, titleNames.door].Value;
+                string doorWidthHeight = (string)workSheet.Cells[i, titleNames.door].Value;
                 if (doorWidthHeight != null)
                 {
                     try
@@ -317,7 +324,7 @@ namespace SinoStationWeb.Models
                 }
                 try
                 {
-                    excelCompare.maxArea = workSheet.Cells[i, titleNames.maxArea].Value; // 規範最大面積
+                    excelCompare.maxArea = (double)workSheet.Cells[i, titleNames.maxArea].Value; // 規範最大面積
                 }
                 catch (Exception)
                 {
@@ -325,7 +332,7 @@ namespace SinoStationWeb.Models
                 }
                 try
                 {
-                    excelCompare.minArea = workSheet.Cells[i, titleNames.minArea].Value; // 規範最小面積
+                    excelCompare.minArea = (double)workSheet.Cells[i, titleNames.minArea].Value; // 規範最小面積
                 }
                 catch (Exception)
                 {
@@ -333,7 +340,7 @@ namespace SinoStationWeb.Models
                 }
                 try
                 {
-                    excelCompare.specificationMinWidth = workSheet.Cells[i, titleNames.specificationMinWidth].Value; // 規範最小寬度
+                    excelCompare.specificationMinWidth = (double)workSheet.Cells[i, titleNames.specificationMinWidth].Value; // 規範最小寬度
                 }
                 catch (Exception)
                 {
@@ -341,7 +348,7 @@ namespace SinoStationWeb.Models
                 }
                 try
                 {
-                    excelCompare.demandArea = workSheet.Cells[i, titleNames.demandArea].Value; // 需求面積
+                    excelCompare.demandArea = (double)workSheet.Cells[i, titleNames.demandArea].Value; // 需求面積
                 }
                 catch (Exception)
                 {
@@ -349,7 +356,7 @@ namespace SinoStationWeb.Models
                 }
                 try
                 {
-                    excelCompare.demandMinWidth = workSheet.Cells[i, titleNames.demandMinWidth].Value; // 需求最小寬度
+                    excelCompare.demandMinWidth = (double)workSheet.Cells[i, titleNames.demandMinWidth].Value; // 需求最小寬度
                 }
                 catch (Exception)
                 {
@@ -363,8 +370,8 @@ namespace SinoStationWeb.Models
 
             return excelCompare;
         }
-        // 更新SQL分數
-        private void EditToSQL(List<Room> roomList)
+        // 新增Excel資料至SQL
+        private void InsertToSQL(List<Room> roomList)
         {
             if (conn.State == 0)
                 conn.Open();

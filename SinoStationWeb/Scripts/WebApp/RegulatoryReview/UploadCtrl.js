@@ -9,7 +9,7 @@ app.service('appService', ['$http', function ($http) {
 
 }]);
 
-app.controller('RoomCtrl', ['$scope', '$window', 'appService', '$rootScope', function ($scope, $window, appService, $rootScope) {
+app.controller('UploadCtrl', ['$scope', '$window', 'appService', '$rootScope', function ($scope, $window, appService, $rootScope) {
 
     // 上傳Excel檔
     $(document).on("click", "#btnUpload", function () {
@@ -26,7 +26,7 @@ app.controller('RoomCtrl', ['$scope', '$window', 'appService', '$rootScope', fun
             processData: false,
             success: function (data) {
                 if (data.length > 0) {
-                    alert("Done");
+                    alert("上傳完成");
                 } else {
                     alert("上傳檔案格式錯誤");
                 }

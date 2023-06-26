@@ -1,0 +1,33 @@
+﻿@using SinoStationWeb.Models;
+
+@{
+    ViewBag.Title = "Upload";
+}
+
+<div ng-controller="UploadCtrl" class="container" style="margin-top: 60px">
+
+    <div ng-repeat="x in [].constructor(3) track by $index">
+        <br />
+    </div>
+    <div class="row">
+        <div class="col-sm-12" style="padding-bottom:20px">
+            <div class="col-sm-3">
+                <input class="form-control" type="file" name="importFile" id="importFile" />
+            </div>
+            <div class="col-sm-3">
+                <input class="btn btn-primary" id="btnUpload" type="button" value="上傳員工名單" />
+            </div>
+            <div class="col-sm-3" style="align-items:center" ng-repeat="item in data">
+                <p> {{item}} </p>
+            </div>
+        </div>
+    </div>
+    <div ng-repeat="x in [].constructor(3) track by $index">
+        <br />
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="@Url.Versioned("~/Scripts/WebApp/RegulatoryReview/UploadCtrl.js")"></script>
+}
