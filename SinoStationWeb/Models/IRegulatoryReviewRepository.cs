@@ -11,5 +11,9 @@ namespace SinoStationWeb.Models
     {
         // 上傳Excel檔
         List<Room> Upload(HttpPostedFileBase file);
+        // 讀取所有規則
+        List<RuleName> AllRule();
+        // 讀取SQL資料
+        List<Room> GetSQLData(string sqlName);
     }
 }

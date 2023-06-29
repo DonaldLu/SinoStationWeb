@@ -1,0 +1,28 @@
+﻿<div ng-controller="Sheet2Ctrl">
+
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>空間名稱(中文)</th>
+                <th>最大面積(m2)</th>
+                <th>最小面積(m2)</th>
+                <th>需求面積</th>
+                <th>容許差異(±%)</th>
+                <th>最小規範寬度</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="data in SQLData">
+                <td ng-bind="data.id" class="mb-1 lbk"></td>
+                <td ng-bind="data.name" class="mb-1 lbk"></td>
+                <td ng-bind="data.maxArea" class="mb-1 lbk"></td>
+                <td ng-bind="data.minArea" class="mb-1 lbk"></td>
+                <td ng-bind="data.demandArea" class="mb-1 lbk"></td>
+                <td ng-bind="data.permit" class="mb-1 lbk"></td>
+                <td ng-bind="data.specificationMinWidth" class="mb-1 lbk"></td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>

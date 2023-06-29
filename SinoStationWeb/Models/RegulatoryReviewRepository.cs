@@ -6,6 +6,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
+using System.Linq;
 using System.Web;
 
 namespace SinoStationWeb.Models
@@ -390,6 +391,25 @@ namespace SinoStationWeb.Models
 
                 }
             }
+        }
+        // 讀取所有規則
+        public List<RuleName> AllRule()
+        {
+            string sql = @"SELECT * FROM Rules";
+            List<RuleName> ret = conn.Query<RuleName>(sql).AsList();
+            return ret;
+        }
+        // 讀取SQL資料
+        public List<Room> GetSQLData(string sqlName)
+        {
+            List<Room> ret = new List<Room>();
+            string sql = @"SELECT * FROM " + sqlName;
+            if(sqlName != null)
+            {
+                ret = conn.Query<Room>(sql, new { sqlName }).ToList();
+            }
+            
+            return ret;
         }
         public void Dispose()
         {

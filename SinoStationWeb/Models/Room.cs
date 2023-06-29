@@ -1,5 +1,10 @@
 ﻿namespace SinoStationWeb.Models
 {
+    public class RuleName
+    {
+        public string name { get; set; }
+        public string sqlName { get; set; }
+    }
     public class Room
     {
         public int id { get; set; } // ID

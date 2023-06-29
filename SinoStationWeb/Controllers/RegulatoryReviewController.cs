@@ -25,6 +25,18 @@ namespace SinoStationWeb.Controllers
         {
             return View();
         }
+        public ActionResult Sheet1()
+        {
+            return PartialView();
+        }
+        public ActionResult Sheet2()
+        {
+            return PartialView();
+        }
+        public ActionResult Sheet3()
+        {
+            return PartialView();
+        }
 
         // =============== Web API ================
 
@@ -34,17 +46,30 @@ namespace SinoStationWeb.Controllers
         {
             if (file == null) return Json(new { Status = 0, Message = "No File Selected" });
 
-            List<Room> memberList = _service.Upload(file);
+            List<Room> roomList = _service.Upload(file);
             string names = string.Empty;
-            foreach (Room member in memberList)
+            foreach (Room room in roomList)
             {
-                if (member.name != "")
+                if (room.name != "")
                 {
-                    names += member.name + "、";
+                    names += room.name + "、";
                 }
             }
             var ret = names;
-            return Json(memberList);
+            return Json(roomList);
+        }
+        // 讀取所有規則
+        public ActionResult AllRule()
+        {
+            List<RuleName> ret = _service.AllRule();
+            return Json(ret);
+        }
+        // 讀取SQL資料
+        [HttpPost]
+        public ActionResult GetSQLData(string sqlName)
+        {
+            List<Room> ret = _service.GetSQLData(sqlName);
+            return Json(ret);
         }
     }
 }

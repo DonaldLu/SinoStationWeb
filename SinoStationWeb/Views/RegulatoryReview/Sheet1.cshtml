@@ -1,0 +1,33 @@
+﻿
+<div ng-controller="Sheet1Ctrl">
+
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>空間名稱(中文)</th>
+                <th>代碼</th>
+                <th>區域</th>
+                <th>樓層</th>
+                <th>空間名稱(英文)</th>
+                <th>其他名稱</th>
+                <th>設備/系統</th>
+                <th>數量</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="data in SQLData">
+                <td ng-bind="data.id" class="mb-1 lbk"></td>
+                <td ng-bind="data.name" class="mb-1 lbk"></td>
+                <td ng-bind="data.code" class="mb-1 lbk"></td>
+                <td ng-bind="data.classification" class="mb-1 lbk"></td>
+                <td ng-bind="data.level" class="mb-1 lbk"></td>
+                <td ng-bind="data.engName" class="mb-1 lbk"></td>
+                <td ng-bind="data.otherNames" class="mb-1 lbk"></td>
+                <td ng-bind="data.system" class="mb-1 lbk"></td>
+                <td ng-bind="data.count" class="mb-1 lbk"></td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>

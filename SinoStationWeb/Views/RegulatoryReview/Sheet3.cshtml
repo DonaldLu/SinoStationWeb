@@ -1,0 +1,30 @@
+﻿<div ng-controller="Sheet3Ctrl">
+
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>空間名稱(中文)</th>
+                <th>最小需求寬度</th>
+                <th>規範淨高</th>
+                <th>需求淨高</th>
+                @*<th>門</th>*@
+                <th>門寬(mm)</th>
+                <th>門高(mm)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="data in SQLData">
+                <td ng-bind="data.id" class="mb-1 lbk"></td>
+                <td ng-bind="data.name" class="mb-1 lbk"></td>
+                <td ng-bind="data.demandMinWidth" class="mb-1 lbk"></td>
+                <td ng-bind="data.unboundedHeight" class="mb-1 lbk"></td>
+                <td ng-bind="data.demandUnboundedHeight" class="mb-1 lbk"></td>
+                @*<td ng-bind="data.door" class="mb-1 lbk"></td>*@
+                <td ng-bind="data.doorWidth" class="mb-1 lbk"></td>
+                <td ng-bind="data.doorHeight" class="mb-1 lbk"></td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
