@@ -64,6 +64,13 @@ namespace SinoStationWeb.Controllers
             List<RuleName> ret = _service.AllRule();
             return Json(ret);
         }
+        // 取得SQL名稱
+        [HttpPost]
+        public ActionResult GetName(string sqlName)
+        {
+            string ret = _service.GetName(sqlName);
+            return Json(ret);
+        }
         // 讀取SQL資料
         [HttpPost]
         public ActionResult GetSQLData(string sqlName)

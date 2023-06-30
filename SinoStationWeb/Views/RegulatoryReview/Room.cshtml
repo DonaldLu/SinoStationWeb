@@ -9,7 +9,7 @@
     <form name="myForm">
         <label for="repeatSelect">請選擇規範條件：</label>
         <select name="repeatSelect" id="repeatSelect" ng-model="data.rule" ng-change="GetSQLData(data.rule)">
-            <option ng-repeat="rule in data.allRule" value="{{rule.sqlName}}">{{rule.name}}</option>
+            <option ng-repeat="rule in data.allRule" value="{{rule}}">{{rule.name}}</option>
         </select>
     </form>
 

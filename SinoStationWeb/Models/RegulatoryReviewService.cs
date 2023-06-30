@@ -26,6 +26,12 @@ namespace SinoStationWeb.Models
             var ret = _regulatoryReviewRepository.AllRule();
             return ret;
         }
+        // 取得SQL名稱
+        public string GetName(string sqlName)
+        {
+            var ret = _regulatoryReviewRepository.GetName(sqlName);
+            return ret;
+        }
         // 讀取SQL資料
         internal List<Room> GetSQLData(string sqlName)
         {

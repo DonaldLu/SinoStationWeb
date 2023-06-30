@@ -13,6 +13,8 @@ namespace SinoStationWeb.Models
         List<Room> Upload(HttpPostedFileBase file);
         // 讀取所有規則
         List<RuleName> AllRule();
+        // 取得SQL名稱
+        string GetName(string sqlName);
         // 讀取SQL資料
         List<Room> GetSQLData(string sqlName);
     }

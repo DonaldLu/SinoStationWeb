@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DocumentFormat.OpenXml.Wordprocessing;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
@@ -397,6 +398,18 @@ namespace SinoStationWeb.Models
         {
             string sql = @"SELECT * FROM Rules";
             List<RuleName> ret = conn.Query<RuleName>(sql).AsList();
+            return ret;
+        }
+        // 取得SQL名稱
+        public string GetName(string sqlName)
+        {
+            string ret = string.Empty;
+            string getName = @"SELECT * FROM Rules WHERE SQLName=@sqlName";
+            if (sqlName != null)
+            {
+                ret = conn.Query<string>(getName, new { sqlName }).FirstOrDefault();
+            }
+
             return ret;
         }
         // 讀取SQL資料

@@ -29,6 +29,10 @@ app.service('appService', ['$http', function ($http) {
     this.AllRule = function (o) {
         return $http.post('AllRule', o);
     };
+    // 取得SQL名稱
+    this.GetName = function (o) {
+        return $http.post('GetName', o);
+    };
     // 讀取SQL資料
     this.GetSQLData = function (o) {
         return $http.post('GetSQLData', o);
@@ -42,26 +46,6 @@ app.factory('dataservice', function () {
 
     function set(data) {
         room = data;
-        //room.id = data.id; // ID
-        //room.code = data.code; // 代碼
-        //room.classification = data.classification; // 區域
-        //room.level = data.level; // 樓層
-        //room.name = data.name; // 空間名稱(中文)
-        //room.engName = data.engName;  // 空間名稱(英文)
-        //room.otherName = data.otherName; // 其他名稱
-        //room.system = data.system; // 設備/系統
-        //room.count = data.count; // 數量
-        //room.maxArea = data.maxArea; // 最大面積(m2)
-        //room.minArea = data.minArea; // 最小面積(m2)
-        //room.demandArea = data.demandArea; // 需求面積
-        //room.permit = data.permit; // 容許差異(±%)
-        //room.specificationMinWidth = data.specificationMinWidth; // 最小規範寬度
-        //room.demandMinWidth = data.demandMinWidth; // 最小需求寬度
-        //room.unboundedHeight = data.unboundedHeight; // 規範淨高
-        //room.demandUnboundedHeight = data.demandUnboundedHeight; // 需求淨高
-        //room.door = data.door; // 門
-        //room.doorWidth = data.doorWidth; // 門寬(mm)
-        //room.doorHeight = data.doorHeight; // 門高(mm)
     }
 
     function get() {
@@ -74,7 +58,7 @@ app.factory('dataservice', function () {
     }
 });
 
-app.controller('RoomCtrl', ['$scope', '$window', 'appService', '$rootScope', 'dataservice', function ($scope, $window, appService, $rootScope, dataservice) {
+app.controller('RoomCtrl', ['$scope', '$window', 'appService', '$rootScope', 'dataservice', '$state', function ($scope, $window, appService, $rootScope, dataservice, $state) {
 
     $scope.data = {
         rule: null,
@@ -95,15 +79,21 @@ app.controller('RoomCtrl', ['$scope', '$window', 'appService', '$rootScope', 'da
 
     // 選擇要顯示規則的SQLName
     $scope.GetSQLData = function (sqlName) {
-        appService.GetSQLData({ sqlName: sqlName })
-            .then(function (ret) {
-                $scope.chooseRule = sqlName;
-                $scope.SQLData = ret.data;
-                dataservice.set(ret.data)
-            })
-            .catch(function (ret) {
-                //alert('Error');
-            });
+        if (sqlName != undefined) {
+            var name_sqlName = sqlName.replace('{', '').replace('}', '').split(",");
+            $scope.chooseRule = name_sqlName[0].split(":")[1].replaceAll("\"", ""); // 取得SQL名稱
+            sqlName = name_sqlName[1].split(":")[1].replace(/"/g, ""); // <-- 使用正規表示式移除全部的 " , 功能同replaceAll
+            // 讀取SQL資料
+            appService.GetSQLData({ sqlName: sqlName })
+                .then(function (ret) {
+                    $scope.SQLData = ret.data;
+                    dataservice.set(ret.data)
+                    $state.reload(); // 即時更新
+                })
+                .catch(function (ret) {
+                    //alert('Error');
+                });
+        }
     }
     $scope.GetSQLData();;
 
